@@ -6,7 +6,7 @@ const app = express();
 
 let topMovies = [
   {
-    title: 'The girl next door',
+    title: 'The Girl Next Door',
     year: '2004',
     genre: 'Romance/Comedy',
   },
@@ -31,7 +31,7 @@ let topMovies = [
     genre: 'Action/Comedy',
   },
   {
-    title: "Love Don't Cost a Thing",
+    title: "Love Don't Cost A Thing",
     year: '2003',
     genre: 'Romance/Comedy',
   },
@@ -41,7 +41,7 @@ let topMovies = [
     genre: 'Comedy/Family',
   },
   {
-    title: 'Without a Paddle',
+    title: 'Without A Paddle',
     year: '2004',
     genre: 'Comedy/Adventure',
   },
