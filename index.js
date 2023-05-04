@@ -7,52 +7,52 @@ const app = express();
 let topMovies = [
   {
     title: 'The Girl Next Door',
-    year: '2004',
+    year: 2004,
     genre: 'Romance/Comedy',
   },
   {
     title: 'Senseless',
-    year: '1998',
+    year: 1998,
     genre: 'Comedy',
   },
   {
     title: 'Superbad',
-    year: '2007',
+    year: 2007,
     genre: 'Comedy/Teen',
   },
   {
     title: 'Friday',
-    year: '1995',
+    year: 1995,
     genre: 'Comedy/Drama',
   },
   {
     title: 'Kung Fu Hustle',
-    year: '2004',
+    year: 2004,
     genre: 'Action/Comedy',
   },
   {
     title: "Love Don't Cost A Thing",
-    year: '2003',
+    year: 2003,
     genre: 'Romance/Comedy',
   },
   {
     title: 'Good Burger',
-    year: '1997',
+    year: 1997,
     genre: 'Comedy/Family',
   },
   {
     title: 'Without A Paddle',
-    year: '2004',
+    year: 2004,
     genre: 'Comedy/Adventure',
   },
   {
     title: 'Fight Club',
-    year: '1999',
+    year: 1999,
     genre: 'Thriller/Drama',
   },
   {
     title: 'Spider-Man',
-    year: '2002',
+    year: 2002,
     genre: 'Action/Adventure',
   },
 ];
@@ -74,6 +74,11 @@ app.get('/', (request, response) => {
 //this setups a message to be on the screen once a user goes to the secreturl directory.
 app.get('/secreturl', (request, response) => {
   response.send('This is a secret url with super top-secret content.');
+});
+
+//creating a directory to grab the Topmovies from the end route /movies
+app.get('/movies', (request, response) => {
+  response.json(topMovies);
 });
 
 //this is a error code to dectect erros in the code above.
