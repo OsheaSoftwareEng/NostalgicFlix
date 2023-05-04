@@ -68,7 +68,7 @@ app.use(express.static('public'));
 
 //this setups a message once the user goes to the home page of the website.
 app.get('/', (request, response) => {
-  response.send('Welcome to my app!');
+  response.send('Welcome to Nostalgicflix!');
 });
 
 //this setups a message to be on the screen once a user goes to the secreturl directory.
