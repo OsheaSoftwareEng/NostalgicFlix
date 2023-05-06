@@ -6,6 +6,8 @@ const app = express();
 const bodyParser = require('body-parser');
 const uuid = require('uuid');
 
+app.use(bodyParser.json());
+
 let users = [
   {
     id: 1,
