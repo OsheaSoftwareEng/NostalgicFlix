@@ -189,16 +189,19 @@ app.get('/users', (request, response) => {
 });
 //getting information about a single user
 app.get('/users/:name', (request, response) => {
-  response.json(
-    users.find((user) => {
-      return user.name === request.params.name;
-    })
-  );
+  const usersName = users.find((user) => {
+    return user.name === request.params.name;
+  });
+  if (usersName) {
+    response.status(200).json(usersName);
+  } else {
+    response.status(400).send('there are no users with that name');
+  }
 });
 
 //adds data for a new user to our list of users.
 app.post('/users', (request, response) => {
-  let newUser = request.body;
+  const newUser = request.body;
 
   if (!newUser.name) {
     const message = 'Name is required';
@@ -226,7 +229,7 @@ app.delete('/users/:id', (request, response) => {
 });
 
 //updates a users account
-app.post('/user', (request, response) => {
+app.put('/users/:id', (request, response) => {
   const usernameUpdate = request.body;
 
   let user = users.find((user) => {
@@ -246,6 +249,20 @@ app.get('/movies', (request, response) => {
   response.status(200).json(movies);
 });
 
+//allows users to save movies to their favorites
+app.post('/users/:id/:movieList', (request, response) => {
+  let user = users.find((user) => {
+    return user.id == id.params.name;
+  });
+
+  if (user) {
+    user.savedMovies.push(movieList);
+    response.status(200).send('This movie has been added to your favorites');
+  } else {
+    response.status(404).send('Something went wrong :(');
+  }
+});
+
 //grabs the movies by the title
 app.get('/movies/:title', (request, response) => {
   const movie = movies.find((movie) => {
@@ -259,7 +276,7 @@ app.get('/movies/:title', (request, response) => {
 });
 
 //get movies by genre
-app.get('/movies/genre/:genreName', (request, response) => {
+app.get('/movies/genres/:genreName', (request, response) => {
   const genre = movies.find((movie) => {
     return movie.genres.name === request.params.genreName;
   });
@@ -267,7 +284,7 @@ app.get('/movies/genre/:genreName', (request, response) => {
   if (genre) {
     response.status(200).json(genre);
   } else {
-    response.status(404).send("sorry the genre selected isn't available");
+    response.status(404).send("sorry the genre searched isn't available");
   }
 });
 
@@ -281,7 +298,7 @@ app.get('/movies/directors/:directorsName', (request, response) => {
     response.status(200).json(director);
   } else {
     response
-      .status(404)
+      .status(400)
       .send('sorry there are no directors with that name in our catalog');
   }
 });
