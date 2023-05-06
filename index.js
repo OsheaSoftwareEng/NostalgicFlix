@@ -28,7 +28,7 @@ let movies = [
   {
     title: 'The Girl Next Door',
     year: 2004,
-    genre: {
+    genres: {
       name: 'Romance/Comedy',
       description:
         'Eighteen-year-old Matthew Kidman (Emile Hirsch) is a straight-arrow overachiever who has never really lived life... until he falls for his new neighbor, the beautiful and seemingly innocent Danielle (Elisha Cuthbert). When Matthew discovers this perfect girl next door is a one-time porn star, his sheltered existence begins to spin out of control. Ultimately, Danielle helps Matthew emerge from his shell and discover that sometimes you have to risk everything for the person you love.',
@@ -42,7 +42,7 @@ let movies = [
   {
     title: 'Senseless',
     year: 1998,
-    genre: {
+    genres: {
       name: 'Comedy',
       description:
         'Darryl Witherspoon is a young black college student who wants to win annual junior analyst competition, which can land him a job in a big brokerage company. He becomes a guinea pig for the drug developed at the college which is promised to heighten all senses by ten times.',
@@ -56,7 +56,7 @@ let movies = [
   {
     title: 'Superbad',
     year: 2007,
-    genre: {
+    genres: {
       name: 'Comedy/Teen',
       description:
         'Two inseparable best friends navigate the last weeks of high school and are invited to a gigantic house party. Together with their nerdy friend, they spend a long day trying to score enough alcohol to supply the party and inebriate two girls in order to kick-start their sex lives before they go off to college. Their quest is complicated after one of them falls in with two inept cops who are determined to show him a good time.',
@@ -70,7 +70,7 @@ let movies = [
   {
     title: 'Napoleon Dynamite',
     year: 2004,
-    genre: {
+    genres: {
       name: 'Comedy/Teen',
       description:
         'In small-town Preston, Idaho, awkward teen Napoleon Dynamite (Jon Heder) has trouble fitting in. After his grandmother is injured in an accident, his life is made even worse when his strangely nostalgic uncle, Rico (Jon Gries), shows up to keep an eye on him. With no safe haven at home or at school, Napoleon befriends the new kid, Pedro (Efren Ramirez), a morose Hispanic boy who speaks little English. Together the two launch a campaign to run for class president.',
@@ -84,7 +84,7 @@ let movies = [
   {
     title: 'Kung Fu Hustle',
     year: 2004,
-    genre: {
+    genres: {
       name: 'Action/Comedy',
       description:
         "When the hapless Sing and his dim-witted pal Bone try to scam the residents of Pig Sty Alley into thinking they're members of the dreaded Axe Gang, the real gangsters descend on this Shanghai slum to restore their fearsome reputation. What gang leader Brother Sum doesn't know is that three legendary retired kung fu masters live anonymously in this decrepit neighborhood and don't take kindly to interlopers.",
@@ -98,7 +98,7 @@ let movies = [
   {
     title: "Love Don't Cost A Thing",
     year: 2003,
-    genre: {
+    genres: {
       name: 'Romance/Comedy',
       description:
         "Science nerd Alvin Johnson (Nick Cannon) is proficient at engineering but incompetent when it comes to dating. One day, popular girl Paris Morgan (Christina Milian) appears at the auto shop where he works after school. She has damaged her mother's car and urgently requests repairs. Alvin offers a bribe: He will fix the car immediately in exchange for two weeks of dating. Paris agrees, and Alvin is able to enter the sacred realm of the popular kids. But at what cost to himself?",
@@ -112,7 +112,7 @@ let movies = [
   {
     title: 'Good Burger',
     year: 1997,
-    genre: {
+    genres: {
       name: 'Comedy/Family',
       description:
         'When Mondo Burger sets up across the street, sneaky Dexter and burger-obsessed Ed realise they need to fight to keep their fast food joint going. Their new secret sauce might be the answer, but not if Mondo can grab it.',
@@ -126,7 +126,7 @@ let movies = [
   {
     title: 'Without A Paddle',
     year: 2004,
-    genre: {
+    genres: {
       name: 'Comedy/Adventure',
       description:
         'After their friend Billy (Anthony Starr) dies, Tom (Dax Shepard), Jerry (Matthew Lillard) and Dan (Seth Green) go on a camping trip to honor his memory. The campsite, however, has special significance. Billy believed famous airplane hijacker D.B. Cooper hid money in the area, and his friends aim to find it. Unfortunately, they are not prepared for the adventure. After falling over a waterfall, they are left to the mercy of wild animals and a harsh wilderness terrain.',
@@ -140,7 +140,7 @@ let movies = [
   {
     title: 'Fight Club',
     year: 1999,
-    genre: {
+    genres: {
       name: 'Thriller/Drama',
       description:
         "A depressed man (Edward Norton) suffering from insomnia meets a strange soap salesman named Tyler Durden (Brad Pitt) and soon finds himself living in his squalid house after his perfect apartment is destroyed. The two bored men form an underground club with strict rules and fight other men who are fed up with their mundane lives. Their perfect partnership frays when Marla (Helena Bonham Carter), a fellow support group crasher, attracts Tyler's attention.",
@@ -154,7 +154,7 @@ let movies = [
   {
     title: 'Spider-Man',
     year: 2002,
-    genre: {
+    genres: {
       name: 'Action/Adventure',
       description:
         '"Spider-Man" centers on student Peter Parker (Tobey Maguire) who, after being bitten by a genetically-altered spider, gains superhuman strength and the spider-like ability to cling to any surface. He vows to use his abilities to fight crime, coming to understand the words of his beloved Uncle Ben: "With great power comes great responsibility."',
@@ -193,17 +193,18 @@ app.get('/users/:name', (request, response) => {
     })
   );
 });
+
 //adds data for a new user to our list of users.
 app.post('/users', (request, response) => {
   let newUser = request.body;
 
   if (!newUser.name) {
-    const message = 'Missing name in request body';
-    res.status(400).send(message);
+    const message = 'Name is required';
+    response.status(400).send(message);
   } else {
-    newUser.id = uuif.v4();
+    newUser.id = uuid.v4();
     users.push(newUser);
-    res.status(201).send(newUser);
+    response.status(201).json(newUser);
   }
 });
 //deletes a user from our list by id
@@ -222,9 +223,65 @@ app.delete('/users/:id', (request, response) => {
   }
 });
 
+//updates a users account
+app.post('/user', (request, response) => {
+  const usernameUpdate = request.body;
+
+  let user = users.find((user) => {
+    return user.id === request.params.id;
+  });
+
+  if (user) {
+    user.name = usernameUpdate.name;
+    response.status(200).json(user);
+  } else {
+    response.status(400).send('Failed to change username');
+  }
+});
+
 //creating a directory to grab the movies from the end route /movies
 app.get('/movies', (request, response) => {
   response.status(200).json(movies);
+});
+
+//grabs the movies by the title
+app.get('/movies/:title', (request, response) => {
+  const movie = movies.find((movie) => {
+    return movie.title === request.params.title;
+  });
+  if (movie) {
+    response.status(200).json(movie);
+  } else {
+    response.status(404).send('This movie could not be found :(');
+  }
+});
+
+//get movies by genre
+app.get('/movies/genre/:genreName', (request, response) => {
+  const genre = movies.find((movie) => {
+    return movie.genres.name === request.params.genreName;
+  });
+
+  if (genre) {
+    response.status(200).json(genre);
+  } else {
+    response.status(404).send("sorry the genre selected isn't available");
+  }
+});
+
+//get movies by directors name
+app.get('/movies/directors/:directorsName', (request, response) => {
+  const director = movies.find((movie) => {
+    return movie.director.name === request.params.directorsName;
+  });
+
+  if (director) {
+    response.status(200).json(director);
+  } else {
+    response
+      .status(404)
+      .send('sorry there are no directors with that name in our catalog');
+  }
 });
 
 //this is a error code to dectect erros in the code above.
