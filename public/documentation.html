@@ -103,6 +103,23 @@
 				<td>N/A</td>
 				<td>A JSON object of all the current users</td>
 			</tr>
+			<tr>
+				<td>Saves a users favorite movie</td>
+				<td>/users/:id/:movieTitle</td>
+				<td>POST</td>
+				<td>:id/:movieTitle</td>
+				<td>A JSON object of the name and the savedMovies empty array ie. {"name": "Robert Kelly","savedMovies":
+					[]}</td>
+				<td>A text message saying the movie has been added to your favorites</td>
+			</tr>
+			<tr>
+				<td>Removes a users favorite movie</td>
+				<td>/users/:id/:movieTitle</td>
+				<td>DELETE</td>
+				<td>:id/:movieTitle</td>
+				<td>N/A</td>
+				<td>A text message saying the movie has been removed to your favorites</td>
+			</tr>
 		</tbody>
 	</table>
 </body>
