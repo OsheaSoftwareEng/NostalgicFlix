@@ -263,6 +263,7 @@ app.post('/users/:id/:movieTitle', (request, response) => {
   const movieTitle = movies.find((movie) => {
     return movie.title === request.params.movieTitle;
   });
+  if (!movieTitle) response.status(404).send('This movie does not exist');
 
   let user = users.find((user) => {
     return user.id === request.params.id;
