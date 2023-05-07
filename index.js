@@ -250,9 +250,9 @@ app.get('/movies', (request, response) => {
 });
 
 //allows users to save movies to their favorites
-app.post('users/:id/:movieTitle', (request, response) => {
+app.post('/users/:id/:movieTitle', (request, response) => {
   const movieTitle = movies.find((movie) => {
-    return movie.title === request.params.title;
+    return movie.title === request.params.movieTitle;
   });
 
   let user = users.find((user) => {
