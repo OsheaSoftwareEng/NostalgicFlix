@@ -183,11 +183,11 @@ app.get('/', (request, response) => {
   response.send('Welcome to Nostalgicflix!');
 });
 
-//creating a directory to get all data for users
+//returns a JSON object of all current users
 app.get('/users', (request, response) => {
   response.json(users);
 });
-//getting information about a single user
+//returns information about a single user
 app.get('/users/:id', (request, response) => {
   const usersName = users.find((user) => {
     return user.id === request.params.id;
@@ -199,7 +199,52 @@ app.get('/users/:id', (request, response) => {
   }
 });
 
-//adds data for a new user to our list of users.
+//gets a JSON object of all the current movies on the server
+app.get('/movies', (request, response) => {
+  response.status(200).json(movies);
+});
+
+//searches for movies by their title and returns a  single JSON object
+app.get('/movies/:title', (request, response) => {
+  const movie = movies.find((movie) => {
+    return movie.title === request.params.title;
+  });
+  if (movie) {
+    response.status(200).json(movie);
+  } else {
+    response.status(404).send('This movie could not be found :(');
+  }
+});
+
+//searches for movies by their genre and returns a JSON object
+app.get('/movies/genres/:genreName', (request, response) => {
+  const genre = movies.find((movie) => {
+    return movie.genres.name === request.params.genreName;
+  });
+
+  if (genre) {
+    response.status(200).json(genre);
+  } else {
+    response.status(404).send("sorry the genre searched isn't available");
+  }
+});
+
+//searches for movies by the directors name and returns the movies with that directors name
+app.get('/movies/directors/:directorsName', (request, response) => {
+  const director = movies.find((movie) => {
+    return movie.director.name === request.params.directorsName;
+  });
+
+  if (director) {
+    response.status(200).json(director);
+  } else {
+    response
+      .status(400)
+      .send('sorry there are no directors with that name in our catalog');
+  }
+});
+
+//creates a new user and adds them to the list of users.
 app.post('/users', (request, response) => {
   const newUser = request.body;
 
@@ -211,42 +256,6 @@ app.post('/users', (request, response) => {
     users.push(newUser);
     response.status(201).json(newUser);
   }
-});
-//deletes a user from our list by id
-app.delete('/users/:id', (request, response) => {
-  let user = users.find((user) => {
-    return user.id === request.params.id;
-  });
-
-  if (user) {
-    users = users.filter((obj) => {
-      return obj.id !== request.params.id;
-    });
-    response.status(201).send('User ' + request.params.id + ' was deleted.');
-  } else {
-    response.status(404).send("User doesn't exist");
-  }
-});
-
-//updates a users account
-app.put('/users/:id', (request, response) => {
-  const usernameUpdate = request.body;
-
-  let user = users.find((user) => {
-    return user.id === request.params.id;
-  });
-
-  if (user) {
-    user.name = usernameUpdate.name;
-    response.status(200).json(user);
-  } else {
-    response.status(400).send('Failed to change username');
-  }
-});
-
-//creating a directory to grab the movies from the end route /movies
-app.get('/movies', (request, response) => {
-  response.status(200).json(movies);
 });
 
 //allows users to save movies to their favorites
@@ -269,59 +278,51 @@ app.post('/users/:id/:movieTitle', (request, response) => {
   }
 });
 
-app.delete('/users/:id/:movieTitle', (request, response) => {
+//deletes a user from our list by id
+app.delete('/users/:id', (request, response) => {
   let user = users.find((user) => {
     return user.id === request.params.id;
   });
+
   if (user) {
-    user = user.savedMovies.filter((movie) => {
-      return movie !== request.params.movieTitle;
+    users = users.filter((obj) => {
+      return obj.id !== request.params.id;
     });
-    response
-      .status(200)
-      .send('This movie has been removed from your favorites');
+    response.status(200).send('User ' + request.params.id + ' was deleted.');
   } else {
-    response.status(404)('This movie is not in your favorites');
+    response.status(404).send("User doesn't exist");
   }
 });
 
-//grabs the movies by the title
-app.get('/movies/:title', (request, response) => {
-  const movie = movies.find((movie) => {
-    return movie.title === request.params.title;
+//allows users to delete movies from their favorites
+app.delete('/users/:id/:movieTitle', (request, response) => {
+  const movieTitle = movies.find((movie) => {
+    return movie.title === request.params.movieTitle;
   });
-  if (movie) {
-    response.status(200).json(movie);
-  } else {
-    response.status(404).send('This movie could not be found :(');
-  }
+
+  let user = users.find((user) => {
+    return user.id === request.params.id;
+  });
+
+  if (!movieTitle) response.status(404).send('This movie does not exist');
+  const index = user.savedMovies.indexOf(movieTitle);
+  user.savedMovies.splice(index, 1);
+  response.send('This movie has been removed from your favorites');
 });
 
-//get movies by genre
-app.get('/movies/genres/:genreName', (request, response) => {
-  const genre = movies.find((movie) => {
-    return movie.genres.name === request.params.genreName;
+//updates a account holders username
+app.put('/users/:id', (request, response) => {
+  const usernameUpdate = request.body;
+
+  let user = users.find((user) => {
+    return user.id === request.params.id;
   });
 
-  if (genre) {
-    response.status(200).json(genre);
+  if (user) {
+    user.name = usernameUpdate.name;
+    response.status(200).json(user);
   } else {
-    response.status(404).send("sorry the genre searched isn't available");
-  }
-});
-
-//get movies by directors name
-app.get('/movies/directors/:directorsName', (request, response) => {
-  const director = movies.find((movie) => {
-    return movie.director.name === request.params.directorsName;
-  });
-
-  if (director) {
-    response.status(200).json(director);
-  } else {
-    response
-      .status(400)
-      .send('sorry there are no directors with that name in our catalog');
+    response.status(404).send('User not found');
   }
 });
 
