@@ -17,5 +17,84 @@
 			genre.
 		</p>
 	</section>
+	<h1>How To Use This API</h1>
+	<table>
+		<thead>
+			<tr>
+				<th>Business Logic</th>
+				<th>URL</th>
+				<th>HTTP Method</th>
+				<th>Request Body Data Format</th>
+				<th>Response Body Data Format</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			<tr>
+				<td>Returns a list of all movies</td>
+				<td>/movies</td>
+				<td>GET</td>
+				<td>N/A</td>
+				<td>A JSON object of all the movies</td>
+			</tr>
+
+			<tr>
+				<td>Returns a specific movie by title</td>
+				<td>/movies/:title</td>
+				<td>GET</td>
+				<td>N/A</td>
+				<td>A JSON object of one movie</td>
+			</tr>
+
+			<tr>
+				<td>Allows users to search for a movie by genre</td>
+				<td>/users/genres/:genreName</td>
+				<td>GET</td>
+				<td>N/A</td>
+				<td>returns all movies with the genre searched</td>
+			</tr>
+
+			<tr>
+				<td>Allows a user to create a new account</td>
+				<td>/users/</td>
+				<td>POST</td>
+				<td>A JSON object of a new user ie.{"name": "John Cena", "savedMovies": [] } </td>
+				<td>A JSON object of a new user added ie. {"name" "Joe Smoe", "savedMovies: []}</td>
+			</tr>
+
+			<tr>
+				<td>Allows a user to be deleted</td>
+				<td>/users/:id</td>
+				<td>DELETE</td>
+				<td>N/A</td>
+				<td>Response text saying ie. "user "id number" has been deleted </td>
+			</tr>
+
+			<tr>
+				<td>Allows a user to change their username</td>
+				<td>/user/:id</td>
+				<td>PUT</td>
+				<td>A JSON object of the new desired name ie. {"name": "Joe Smoe"} </td>
+				<td>Returns a JSON Object with the new name, the ID, and saved movie ie. { "id": "1","name": "Joe
+					Smoe","savedMovies": []} </td>
+			</tr>
+
+			<tr>
+				<td>Returns movies by directors</td>
+				<td>/movies/directors/:directorName</td>
+				<td>GET</td>
+				<td>N/A</td>
+				<td>A JSON object of all the movies with that searched director</td>
+			</tr>
+
+			<tr>
+				<td>Returns all current users</td>
+				<td>/users</td>
+				<td>GET</td>
+				<td>N/A</td>
+				<td>A JSON object of all the current users</td>
+			</tr>
+		</tbody>
+	</table>
 </body>
 </html>
