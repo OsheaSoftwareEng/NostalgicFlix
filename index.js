@@ -269,6 +269,22 @@ app.post('/users/:id/:movieTitle', (request, response) => {
   }
 });
 
+app.delete('/users/:id/:movieTitle', (request, response) => {
+  let user = users.find((user) => {
+    return user.id === request.params.id;
+  });
+  if (user) {
+    user = user.savedMovies.filter((movie) => {
+      return movie !== request.params.movieTitle;
+    });
+    response
+      .status(200)
+      .send('This movie has been removed from your favorites');
+  } else {
+    response.status(404)('This movie is not in your favorites');
+  }
+});
+
 //grabs the movies by the title
 app.get('/movies/:title', (request, response) => {
   const movie = movies.find((movie) => {
