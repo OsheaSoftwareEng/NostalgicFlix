@@ -184,3 +184,4 @@
 ::1 - - [07/May/2023:16:05:09 +0000] "POST /users/2/movies/Superbad HTTP/1.1" 404 163 "-" "PostmanRuntime/7.32.2"
 ::1 - - [07/May/2023:16:08:39 +0000] "POST /users/2/movies/Superbad HTTP/1.1" 404 163 "-" "PostmanRuntime/7.32.2"
 ::1 - - [07/May/2023:16:13:16 +0000] "POST /users/2/Superbad HTTP/1.1" 404 156 "-" "PostmanRuntime/7.32.2"
+::1 - - [07/May/2023:16:25:45 +0000] "POST /users/2/Superbad HTTP/1.1" 404 156 "-" "PostmanRuntime/7.32.2"
