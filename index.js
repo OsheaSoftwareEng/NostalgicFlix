@@ -5,8 +5,19 @@ const path = require('path');
 const app = express();
 const bodyParser = require('body-parser');
 const uuid = require('uuid');
+const mongoose = require('mongoose');
+const Models = require('./models.js');
+const { update } = require('lodash');
+const Movies = Models.Movie;
+const Users = Models.User;
+
+mongoose.connect('mongodb://localhost:27017/nfDB', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 let users = [
   {
@@ -31,7 +42,7 @@ let movies = [
     title: 'The Girl Next Door',
     year: 2004,
     genres: {
-      name: 'Romance/Comedy',
+      name: 'Romance',
       description:
         'Eighteen-year-old Matthew Kidman (Emile Hirsch) is a straight-arrow overachiever who has never really lived life... until he falls for his new neighbor, the beautiful and seemingly innocent Danielle (Elisha Cuthbert). When Matthew discovers this perfect girl next door is a one-time porn star, his sheltered existence begins to spin out of control. Ultimately, Danielle helps Matthew emerge from his shell and discover that sometimes you have to risk everything for the person you love.'
     },
@@ -59,7 +70,7 @@ let movies = [
     title: 'Superbad',
     year: 2007,
     genres: {
-      name: 'Comedy/Teen',
+      name: 'Comedy',
       description:
         'Two inseparable best friends navigate the last weeks of high school and are invited to a gigantic house party. Together with their nerdy friend, they spend a long day trying to score enough alcohol to supply the party and inebriate two girls in order to kick-start their sex lives before they go off to college. Their quest is complicated after one of them falls in with two inept cops who are determined to show him a good time.'
     },
@@ -73,7 +84,7 @@ let movies = [
     title: 'Napoleon Dynamite',
     year: 2004,
     genres: {
-      name: 'Comedy/Teen',
+      name: 'Comedy',
       description:
         'In small-town Preston, Idaho, awkward teen Napoleon Dynamite (Jon Heder) has trouble fitting in. After his grandmother is injured in an accident, his life is made even worse when his strangely nostalgic uncle, Rico (Jon Gries), shows up to keep an eye on him. With no safe haven at home or at school, Napoleon befriends the new kid, Pedro (Efren Ramirez), a morose Hispanic boy who speaks little English. Together the two launch a campaign to run for class president.'
     },
@@ -87,7 +98,7 @@ let movies = [
     title: 'Kung Fu Hustle',
     year: 2004,
     genres: {
-      name: 'Action/Comedy',
+      name: 'Comedy',
       description:
         "When the hapless Sing and his dim-witted pal Bone try to scam the residents of Pig Sty Alley into thinking they're members of the dreaded Axe Gang, the real gangsters descend on this Shanghai slum to restore their fearsome reputation. What gang leader Brother Sum doesn't know is that three legendary retired kung fu masters live anonymously in this decrepit neighborhood and don't take kindly to interlopers."
     },
@@ -101,7 +112,7 @@ let movies = [
     title: "Love Don't Cost A Thing",
     year: 2003,
     genres: {
-      name: 'Romance/Comedy',
+      name: 'Romance',
       description:
         "Science nerd Alvin Johnson (Nick Cannon) is proficient at engineering but incompetent when it comes to dating. One day, popular girl Paris Morgan (Christina Milian) appears at the auto shop where he works after school. She has damaged her mother's car and urgently requests repairs. Alvin offers a bribe: He will fix the car immediately in exchange for two weeks of dating. Paris agrees, and Alvin is able to enter the sacred realm of the popular kids. But at what cost to himself?"
     },
@@ -115,7 +126,7 @@ let movies = [
     title: 'Good Burger',
     year: 1997,
     genres: {
-      name: 'Comedy/Family',
+      name: 'Comedy',
       description:
         'When Mondo Burger sets up across the street, sneaky Dexter and burger-obsessed Ed realise they need to fight to keep their fast food joint going. Their new secret sauce might be the answer, but not if Mondo can grab it.'
     },
@@ -129,21 +140,21 @@ let movies = [
     title: 'Without A Paddle',
     year: 2004,
     genres: {
-      name: 'Comedy/Adventure',
+      name: 'Comedy',
       description:
         'After their friend Billy (Anthony Starr) dies, Tom (Dax Shepard), Jerry (Matthew Lillard) and Dan (Seth Green) go on a camping trip to honor his memory. The campsite, however, has special significance. Billy believed famous airplane hijacker D.B. Cooper hid money in the area, and his friends aim to find it. Unfortunately, they are not prepared for the adventure. After falling over a waterfall, they are left to the mercy of wild animals and a harsh wilderness terrain.'
     },
     director: {
       name: 'Steven Brill',
       born: 'May 27, 1962',
-      bio: 'Steven Brill is an American actor, film producer, director, and screenwriter. '
+      bio: 'Steven Brill is an American actor, film producer, director, and screenwriter.'
     }
   },
   {
     title: 'Fight Club',
     year: 1999,
     genres: {
-      name: 'Thriller/Drama',
+      name: 'Thriller',
       description:
         "A depressed man (Edward Norton) suffering from insomnia meets a strange soap salesman named Tyler Durden (Brad Pitt) and soon finds himself living in his squalid house after his perfect apartment is destroyed. The two bored men form an underground club with strict rules and fight other men who are fed up with their mundane lives. Their perfect partnership frays when Marla (Helena Bonham Carter), a fellow support group crasher, attracts Tyler's attention."
     },
@@ -157,7 +168,7 @@ let movies = [
     title: 'Spider-Man',
     year: 2002,
     genres: {
-      name: 'Action/Adventure',
+      name: 'Action',
       description:
         '"Spider-Man" centers on student Peter Parker (Tobey Maguire) who, after being bitten by a genetically-altered spider, gains superhuman strength and the spider-like ability to cling to any surface. He vows to use his abilities to fight crime, coming to understand the words of his beloved Uncle Ben: "With great power comes great responsibility."'
     },
@@ -184,147 +195,186 @@ app.get('/', (request, response) => {
 });
 
 //returns a JSON object of all current users
-app.get('/users', (request, response) => {
-  response.json(users);
+app.get('/users', (req, res) => {
+  Users.find()
+    .then((users) => {
+      res.status(201).json(users);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    });
 });
-//returns information about a single user
-app.get('/users/:id', (request, response) => {
-  const usersName = users.find((user) => {
-    return user.id === request.params.id;
-  });
-  if (usersName) {
-    response.status(200).json(usersName);
-  } else {
-    response.status(400).send('there are no users with that name');
-  }
+
+//get a user by username
+app.get('/users/:Username', (req, res) => {
+  Users.findOne({ Username: req.params.Username })
+    .then((user) => {
+      res.status(200).json(user);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    });
 });
 
 //gets a JSON object of all the current movies on the server
-app.get('/movies', (request, response) => {
-  response.status(200).json(movies);
+app.get('/movies', (req, res) => {
+  Movies.find()
+    .then((movies) => {
+      res.status(200).json(movies);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    });
 });
 
 //searches for movies by their title and returns a  single JSON object
-app.get('/movies/:title', (request, response) => {
-  const movie = movies.find((movie) => {
-    return movie.title === request.params.title;
-  });
-  if (movie) {
-    response.status(200).json(movie);
-  } else {
-    response.status(404).send('This movie could not be found :(');
-  }
+app.get('/movies/:title', (req, res) => {
+  Movies.findOne({ Title: req.params.title })
+    .then((movies) => {
+      res.status(200).json(movies);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    });
 });
 
 //searches for movies by their genre and returns a JSON object
-app.get('/movies/genres/:genreName', (request, response) => {
-  const genre = movies.find((movie) => {
-    return movie.genres.name === request.params.genreName;
-  });
-
-  if (genre) {
-    response.status(200).json(genre);
-  } else {
-    response.status(404).send("sorry the genre searched isn't available");
-  }
+app.get('/movies/genres/:genreName', (req, res) => {
+  Movies.find({ 'Genre.Name': req.params.genreName })
+    .then((movies) => {
+      res.status(200).json(movies);
+    })
+    .catch((err) => {
+      res.status(500).send('Error: ' + err);
+    });
 });
 
 //searches for movies by the directors name and returns the movies with that directors name
-app.get('/movies/directors/:directorsName', (request, response) => {
-  const director = movies.find((movie) => {
-    return movie.director.name === request.params.directorsName;
-  });
-
-  if (director) {
-    response.status(200).json(director);
-  } else {
-    response
-      .status(400)
-      .send('sorry there are no directors with that name in our catalog');
-  }
+app.get('/movies/directors/:directorsName', (req, res) => {
+  Movies.find({ 'Director.Name': req.params.directorsName })
+    .then((movies) => {
+      res.status(200).json(movies);
+    })
+    .catch((err) => {
+      res.status(500).send('Error: ' + err);
+    });
 });
 
 //creates a new user and adds them to the list of users.
-app.post('/users', (request, response) => {
-  const newUser = request.body;
-
-  if (!newUser.name) {
-    const message = 'Name is required';
-    response.status(400).send(message);
-  } else {
-    newUser.id = uuid.v4();
-    users.push(newUser);
-    response.status(201).json(newUser);
-  }
+app.post('/users', (req, res) => {
+  Users.findOne({ Username: req.body.Username })
+    .then((user) => {
+      if (user) {
+        return res.status(400).send(req.body.Username + 'already exists');
+      } else {
+        Users.create({
+          Username: req.body.Username,
+          Password: req.body.Password,
+          Email: req.body.Email,
+          Birthday: req.body.Birthday
+        })
+          .then((user) => {
+            res.status(201).json(user);
+          })
+          .catch((error) => {
+            console.error(error);
+            res.status(500).send('Error: ' + error);
+          });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send('Error: ' + error);
+    });
 });
 
 //allows users to save movies to their favorites
-app.post('/users/:id/:movieTitle', (request, response) => {
-  const movieTitle = movies.find((movie) => {
-    return movie.title === request.params.movieTitle;
-  });
-  if (!movieTitle) response.status(404).send('This movie does not exist');
-
-  let user = users.find((user) => {
-    return user.id === request.params.id;
-  });
-
-  if (user) {
-    user.savedMovies.push(movieTitle);
-    response.status(200).send('This movie has been added to your favorites');
-  } else {
-    response
-      .status(404)
-      .send("This movie could'nt be added to your favorites :(");
-  }
+app.post('/users/:Username/movies/:MovieID', (req, res) => {
+  Users.findOneAndUpdate(
+    { Username: req.params.Username },
+    {
+      $push: { FavoriteMovies: req.params.MovieID }
+    },
+    { new: true }, //This line makes sure the updated document is returned
+    (err, updatedUser) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      } else {
+        res.json(updatedUser);
+      }
+    }
+  );
 });
 
-//deletes a user from our list by id
-app.delete('/users/:id', (request, response) => {
-  let user = users.find((user) => {
-    return user.id === request.params.id;
-  });
-
-  if (user) {
-    users = users.filter((obj) => {
-      return obj.id !== request.params.id;
+//deletes a user by username
+app.delete('users/:Username', (req, res) => {
+  Users.findOneAndRemove({ Username: req.params.Username })
+    .then((user) => {
+      if (!user) {
+        res.status(400).send(req.params.Username + ' was not found');
+      } else {
+        res.status(200).send(req.params.Username + ' was deleted');
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
     });
-    response.status(200).send('User ' + request.params.id + ' was deleted.');
-  } else {
-    response.status(404).send("User doesn't exist");
-  }
 });
 
 //allows users to delete movies from their favorites
-app.delete('/users/:id/:movieTitle', (request, response) => {
-  const movieTitle = movies.find((movie) => {
-    return movie.title === request.params.movieTitle;
+app.delete('/users/:id/:movieTitle', (req, res) => {
+  Movies.findOneAndRemove({ Title: req.params.movieTitle }).then((movies) => {
+    if (!movies) {
+      res.status(400).send(req.params.movieTitle + 'was not found');
+    } else {
+      res.status(200).send(req.params.movieTitle + ' was deleted');
+    }
   });
-
-  let user = users.find((user) => {
-    return user.id === request.params.id;
-  });
-
-  if (!movieTitle) response.status(404).send('This movie does not exist');
-  const index = user.savedMovies.indexOf(movieTitle);
-  user.savedMovies.splice(index, 1);
-  response.send('This movie has been removed from your favorites');
 });
 
+// app.delete('/users/:id/:movieTitle', (request, response) => {
+//   const movieTitle = movies.find((movie) => {
+//     return movie.title === request.params.movieTitle;
+//   });
+
+//   let user = users.find((user) => {
+//     return user.id === request.params.id;
+//   });
+
+//   if (!movieTitle) response.status(404).send('This movie does not exist');
+//   const index = user.savedMovies.indexOf(movieTitle);
+//   user.savedMovies.splice(index, 1);
+//   response.send('This movie has been removed from your favorites');
+// });
+
 //updates a account holders username
-app.put('/users/:id', (request, response) => {
-  const usernameUpdate = request.body;
-
-  let user = users.find((user) => {
-    return user.id === request.params.id;
-  });
-
-  if (user) {
-    user.name = usernameUpdate.name;
-    response.status(200).json(user);
-  } else {
-    response.status(404).send('User not found');
-  }
+app.put('users/:Username', (req, res) => {
+  Users.findOneAndUpdate(
+    { Username: req.params.Username },
+    {
+      $set: {
+        Usermame: req.body.Username,
+        Password: req.body.Password,
+        Email: req.body.Email,
+        Birthday: req.body.Birthday
+      }
+    },
+    { new: true },
+    (err, updatedUser) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      } else {
+        res.json(updateUser);
+      }
+    }
+  );
 });
 
 //this is a error code to dectect erros in the code above.
