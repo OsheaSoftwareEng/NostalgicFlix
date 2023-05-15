@@ -13,8 +13,8 @@
 			favorite
 			nostalgic
 			movies.
-			This web application will provide users with an array of nostalgic movies, with the year of creation and
-			genre.
+			This web application will provide users with an array of nostalgic movies, with the title,directors and
+			genre of the movies.
 		</p>
 	</section>
 	<h1>How To Use This API</h1>
@@ -31,6 +31,24 @@
 		</thead>
 
 		<tbody>
+			<tr>
+				<td>Returns all current users</td>
+				<td>/users</td>
+				<td>GET</td>
+				<td>N/A</td>
+				<td>N/A</td>
+				<td>A JSON object of all the current users</td>
+			</tr>
+
+			<tr>
+				<td>Returns a specific user by name</td>
+				<td>/users/:Username</td>
+				<td>GET</td>
+				<td>:Username</td>
+				<td>N/A</td>
+				<td>A JSON object of all a specific user</td>
+			</tr>
+
 			<tr>
 				<td>Returns a list of all movies</td>
 				<td>/movies</td>
@@ -59,34 +77,6 @@
 			</tr>
 
 			<tr>
-				<td>Allows a user to create a new account</td>
-				<td>/users/</td>
-				<td>POST</td>
-				<td>N/A</td>
-				<td>A JSON object of a new user ie.{"name": "John Cena", "savedMovies": [] } </td>
-				<td>A JSON object of a new user added ie. {"name" "Joe Smoe", "savedMovies: []}</td>
-			</tr>
-
-			<tr>
-				<td>Allows a user to be deleted</td>
-				<td>/users/:id</td>
-				<td>DELETE</td>
-				<td>:id</td>
-				<td>N/A</td>
-				<td>Response text saying ie. "user "id number" has been deleted </td>
-			</tr>
-
-			<tr>
-				<td>Allows a user to change their username</td>
-				<td>/user/:id</td>
-				<td>PUT</td>
-				<td>:id</td>
-				<td>A JSON object of the new desired name ie. {"name": "Joe Smoe"} </td>
-				<td>Returns a JSON Object with the new name, the ID, and saved movie ie. { "id": "1","name": "Joe
-					Smoe","savedMovies": []} </td>
-			</tr>
-
-			<tr>
 				<td>Returns movies by directors</td>
 				<td>/movies/directors/:directorName</td>
 				<td>GET</td>
@@ -96,29 +86,81 @@
 			</tr>
 
 			<tr>
-				<td>Returns all current users</td>
-				<td>/users</td>
-				<td>GET</td>
+				<td>Allows a user to create a new account</td>
+				<td>/users/</td>
+				<td>POST</td>
 				<td>N/A</td>
-				<td>N/A</td>
-				<td>A JSON object of all the current users</td>
+				<td>You Must Enter a JSON object of a new user ie.{
+					"Username": "PizzaLover",
+					"Password": "HungryHowies9898",
+					"Email": "PizzaHunger@gmail.com",
+					"Birthday": "01-07-1993"
+					} *note Username,Password,Email,Birthday must be capitalized and all fields must be field out. </td>
+				<td>A JSON object of a new user added plus an ID number and empty array to store users favorite movies
+					ie. {
+					"Username": "PizzaLover",
+					"Password": "HungryHowies9898",
+					"Email": "PizzaHunger@gmail.com",
+					"Birthday": "1993-01-07T05:00:00.000Z",
+					"FavoriteMovies": [],
+					"_id": "646246127a99d582c7aa8f4d",
+					"__v": 0
+					}</td>
 			</tr>
+
 			<tr>
 				<td>Saves a users favorite movie</td>
-				<td>/users/:id/:movieTitle</td>
+				<td>/users/:Username/:MovieID</td>
 				<td>POST</td>
-				<td>:id/:movieTitle</td>
-				<td>A JSON object of the name and the savedMovies empty array ie. {"name": "Robert Kelly","savedMovies":
-					[]}</td>
-				<td>A text message saying the movie has been added to your favorites</td>
+				<td>:Username/:MovieID</td>
+				<td>In the url /:MovieID use the ObjectID of the movie document in the movie collection of a specific
+					movie you like.</td>
+				<td>it will return a JSON Object with the ussers id, username,password email, birthday and the favorite
+					movie you added will be in the array of favorite movies </td>
 			</tr>
+
+			<tr>
+				<td>Allows a user to be deleted</td>
+				<td>/users/:Username</td>
+				<td>DELETE</td>
+				<td>:Username</td>
+				<td>N/A</td>
+				<td>Response text saying ie. This "User" has been deleted </td>
+			</tr>
+
+			<tr>
+				<td>Allows a user to their user information</td>
+				<td>/user/:Username</td>
+				<td>PUT</td>
+				<td>:Username</td>
+				<td>A JSON object of the four user categories, each categorize ie. Username, Password etc. must be
+					capitlized and filled in even if its not updated. For example {
+					"Username": "JuniorPizzaBoy",
+					"Password": "HungryHowiesPizza9898",
+					"Email": "PizzaHungerandSoda@gmail.com",
+					"Birthday": "October 31, 2005"
+					}
+				</td>
+				<td>A JSON object of the updated information you changed and the information you didn't change. If you
+					updated all categories all information when come back updated ie. {
+					"_id": "646238c8a0d5073f558507c1",
+					"Username": "JuniorPizzaBoy",
+					"Password": "HungryHowiesPizza9898",
+					"Email": "PizzaHungerandSoda@gmail.com",
+					"Birthday": "2005-10-31T05:00:00.000Z",
+					"FavoriteMovies": [],
+					"__v": 0
+					} </td>
+			</tr>
+
 			<tr>
 				<td>Removes a users favorite movie</td>
-				<td>/users/:id/:movieTitle</td>
+				<td>/users/:Username/movies/:MovieID</td>
 				<td>DELETE</td>
-				<td>:id/:movieTitle</td>
-				<td>N/A</td>
-				<td>A text message saying the movie has been removed to your favorites</td>
+				<td>:Username/:MovieID</td>
+				<td>In the url /:MovieID use the ObjectID of the movie document in the movie collection of a specific
+					returns a JSON object of all users information and updated FavoriteMovies missing the movie you
+					requested to be deleted.</td>
 			</tr>
 		</tbody>
 	</table>
