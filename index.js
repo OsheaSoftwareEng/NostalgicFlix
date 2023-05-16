@@ -125,7 +125,7 @@ app.post('/users', (req, res) => {
   });
 });
 
-//allows users to save movies to their favorites
+//allows users to save movies to their favorites!
 app.post('/users/:userName/movies/:MovieID', (req, res) => {
   Users.findOneAndUpdate(
     { Username: req.params.userName },
