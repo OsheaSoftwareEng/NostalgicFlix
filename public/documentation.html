@@ -42,9 +42,9 @@
 
 			<tr>
 				<td>Returns a specific user by name</td>
-				<td>/users/:Username</td>
+				<td>/users/:userName</td>
 				<td>GET</td>
-				<td>:Username</td>
+				<td>:userName</td>
 				<td>N/A</td>
 				<td>A JSON object of all a specific user</td>
 			</tr>
@@ -110,9 +110,9 @@
 
 			<tr>
 				<td>Saves a users favorite movie</td>
-				<td>/users/:Username/:MovieID</td>
+				<td>/users/:userName/:MovieID</td>
 				<td>POST</td>
-				<td>:Username/:MovieID</td>
+				<td>:userName/:MovieID</td>
 				<td>In the url /:MovieID use the ObjectID of the movie document in the movie collection of a specific
 					movie you like.</td>
 				<td>it will return a JSON Object with the ussers id, username,password email, birthday and the favorite
@@ -121,18 +121,18 @@
 
 			<tr>
 				<td>Allows a user to be deleted</td>
-				<td>/users/:Username</td>
+				<td>/users/:userName</td>
 				<td>DELETE</td>
-				<td>:Username</td>
+				<td>:userName</td>
 				<td>N/A</td>
 				<td>Response text saying ie. This "User" has been deleted </td>
 			</tr>
 
 			<tr>
-				<td>Allows a user to their user information</td>
-				<td>/user/:Username</td>
+				<td>Allows a user to update their user information</td>
+				<td>/user/:userName</td>
 				<td>PUT</td>
-				<td>:Username</td>
+				<td>:userName</td>
 				<td>A JSON object of the four user categories, each categorize ie. Username, Password etc. must be
 					capitlized and filled in even if its not updated. For example {
 					"Username": "JuniorPizzaBoy",
@@ -155,9 +155,9 @@
 
 			<tr>
 				<td>Removes a users favorite movie</td>
-				<td>/users/:Username/movies/:MovieID</td>
+				<td>/users/:userName/movies/:MovieID</td>
 				<td>DELETE</td>
-				<td>:Username/:MovieID</td>
+				<td>:userName/:MovieID</td>
 				<td>In the url /:MovieID use the ObjectID of the movie document in the movie collection of a specific
 					returns a JSON object of all users information and updated FavoriteMovies missing the movie you
 					requested to be deleted.</td>
