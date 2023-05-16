@@ -45,8 +45,8 @@ app.get('/users', (req, res) => {
 });
 
 //get a user by username
-app.get('/users/:Username', (req, res) => {
-  Users.findOne({ Username: req.params.Username })
+app.get('/users/:userName', (req, res) => {
+  Users.findOne({ Username: req.params.userName })
     .then((user) => {
       res.status(200).json(user);
     })
@@ -126,9 +126,9 @@ app.post('/users', (req, res) => {
 });
 
 //allows users to save movies to their favorites
-app.post('/users/:Username/movies/:MovieID', (req, res) => {
+app.post('/users/:userName/movies/:MovieID', (req, res) => {
   Users.findOneAndUpdate(
-    { Username: req.params.Username },
+    { Username: req.params.userName },
     {
       $addToSet: { FavoriteMovies: req.params.MovieID }
     },
@@ -148,13 +148,13 @@ app.post('/users/:Username/movies/:MovieID', (req, res) => {
 });
 
 //deletes a user by username
-app.delete('/users/:Username', (req, res) => {
-  Users.findOneAndRemove({ Username: req.params.Username })
+app.delete('/users/:userName', (req, res) => {
+  Users.findOneAndRemove({ Username: req.params.userName })
     .then((user) => {
       if (!user) {
-        res.status(400).send(req.params.Username + ' was not found');
+        res.status(400).send(req.params.userName + ' was not found');
       } else {
-        res.status(200).send(req.params.Username + ' was deleted');
+        res.status(200).send(req.params.userName + ' was deleted');
       }
     })
     .catch((err) => {
@@ -164,9 +164,9 @@ app.delete('/users/:Username', (req, res) => {
 });
 
 //allows users to delete movies from their favorites
-app.delete('/users/:Username/movies/:MovieID', (req, res) => {
+app.delete('/users/:userName/movies/:MovieID', (req, res) => {
   Users.findOneAndUpdate(
-    { Username: req.params.Username },
+    { Username: req.params.userName },
     {
       $pull: { FavoriteMovies: req.params.MovieID }
     },
@@ -185,10 +185,10 @@ app.delete('/users/:Username/movies/:MovieID', (req, res) => {
     });
 });
 
-//updates a account holders username
-app.put('/users/:Username', (req, res) => {
+//updates a account holders information
+app.put('/users/:userName', (req, res) => {
   Users.findOneAndUpdate(
-    { Username: req.params.Username },
+    { Username: req.params.userName },
     {
       $set: {
         Username: req.body.Username,
