@@ -18,6 +18,10 @@ mongoose.connect('mongodb://localhost:27017/nfDB', {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+let auth = require('./auth')(app);
+const passport = require('passport');
+require('./passport.js');
+
 //combining morgan with the accessLogScream to log users who visit the website.
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'log.txt'), {
   flags: 'a'
@@ -57,16 +61,20 @@ app.get('/users/:userName', (req, res) => {
 });
 
 //gets a JSON object of all the current movies on the server
-app.get('/movies', (req, res) => {
-  Movies.find()
-    .then((movies) => {
-      res.status(200).json(movies);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send('Error: ' + err);
-    });
-});
+app.get(
+  '/movies',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    Movies.find()
+      .then((movies) => {
+        res.status(200).json(movies);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      });
+  }
+);
 
 //searches for movies by their title and returns a  single JSON object
 app.get('/movies/:title', (req, res) => {
