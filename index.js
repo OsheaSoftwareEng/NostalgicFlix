@@ -1,9 +1,14 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
+const { check, validationResult } = require('express-validator');
 const app = express();
-const bodyParser = require('body-parser');
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 const mongoose = require('mongoose');
 const Models = require('./models.js');
 
@@ -15,10 +20,7 @@ mongoose.connect('mongodb://localhost:27017/nfDB', {
   useUnifiedTopology: true
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-let auth = require('./auth')(app);
+let auth = require('./auth.js')(app);
 const passport = require('passport');
 require('./passport.js');
 
