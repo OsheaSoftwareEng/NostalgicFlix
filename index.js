@@ -103,7 +103,7 @@ app.get(
 //gets a JSON object of all the current movies on the server
 app.get(
   '/movies',
-  passport.authenticate('jwt', { session: false }),
+  //passport.authenticate('jwt', { session: false }),
   (req, res) => {
     Movies.find()
       .then((movies) => {
