@@ -31,7 +31,8 @@ const cors = require('cors');
 
 const allowedOrigins = [
   'http://localhost:8080',
-  'https://nostalgic-flix.herokuapp.com/'
+  'https://nostalgic-flix.herokuapp.com/',
+  'http://localhost:1234'
 ];
 
 app.use(
