@@ -289,13 +289,31 @@ app.delete(
 app.put(
   '/users/:userName',
   passport.authenticate('jwt', { session: false }),
+  [
+    // Username should be required and should be minimum 5 characters long
+    check(
+      'Username',
+      'Username is required and has to be minimum five characters long'
+    ).isLength({ min: 5 }),
+    // Username should be only alphanumeric characters
+    check(
+      'Username',
+      'Username contains non alphanumeric characters - not allowed.'
+    ).isAlphanumeric(),
+    // Password is required
+    check('Password', 'Password is required').not().isEmpty(),
+    // Email is required and should be valid
+    check('Email', 'Email does not appear to be valid').isEmail()
+  ],
   (req, res) => {
+    let hashPassword = Users.hashPassword(req.body.Password);
+
     Users.findOneAndUpdate(
       { Username: req.params.userName },
       {
         $set: {
           Username: req.body.Username,
-          Password: req.body.Password,
+          Password: hashPassword,
           Email: req.body.Email,
           Birthday: req.body.Birthday
         }
