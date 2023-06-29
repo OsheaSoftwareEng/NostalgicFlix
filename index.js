@@ -5,6 +5,14 @@ const fs = require('fs');
 const path = require('path');
 const { check, validationResult } = require('express-validator');
 const app = express();
+app.use(express.json());
+const jwt = require('jsonwebtoken');
+var nodemailer = require('nodemailer');
+app.set('view engine', 'ejs');
+app.use(express.urlencoded({ extended: false }));
+
+const JWT_SECRET =
+  'hvdvay6ert72839289()aiyg8t87qt72393293883uhefiuh78ttq3ifi78272jbkj?[]]pou89ywe';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -54,6 +62,8 @@ app.use(
 let auth = require('./auth.js')(app);
 const passport = require('passport');
 const { measureMemory } = require('vm');
+const { has } = require('lodash');
+const { hash } = require('bcrypt');
 require('./passport.js');
 
 //combining morgan with the accessLogScream to log users who visit the website.
@@ -334,7 +344,7 @@ app.put(
   }
 );
 
-//this is a error code to dectect erros in the code above.
+//this is a error code to detect errors in the code above.
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
@@ -344,4 +354,107 @@ app.use((err, req, res, next) => {
 const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0', () => {
   console.log('Listening on Port.');
+});
+
+app.post('/forgot-password', async (req, res) => {
+  const { Email } = req.body;
+  try {
+    //variable to find user by email that forgot password
+    const oldUser = await Users.findOne({ Email });
+    if (!oldUser) {
+      return res.json('This user does not exist');
+    }
+    //created secret token that users get by email that expires in 5m
+    const secret = JWT_SECRET + oldUser.Password;
+    const token = jwt.sign({ Email: oldUser.Email, id: oldUser._id }, secret, {
+      expiresIn: '5m'
+    });
+
+    //link sends from server to users to reset password
+    const link = `https://nostalgic-flix.herokuapp.com/reset-password/${oldUser._id}/${token}`;
+
+    //email sending to reset password nodemailer
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'nostalgiaflixnoreply@gmail.com',
+        pass: 'movrbebnrqeqnsax'
+      }
+    });
+
+    var mailOptions = {
+      from: 'nostalgiaflixnoreply@gmail.com',
+      to: req.body.Email,
+      subject: 'Password Reset NostalgicFlix',
+      text: link
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+    //reset password link sent to console
+    console.log(link);
+    res.send('done');
+  } catch (error) {}
+});
+
+//once users clicks link, the link will contain id and token.
+app.get('/reset-password/:id/:token', async (req, res) => {
+  const { id, token } = req.params;
+  console.log(req.params);
+
+  //searches through users to verify its the right user id in the token generated if not everything ends
+  const oldUser = await Users.findOne({ _id: id });
+  if (!oldUser) {
+    return res.json({ status: 'This user does not exist' });
+  }
+
+  //verifies if the secret is correct if it is then it renders the reset password page.
+  const secret = JWT_SECRET + oldUser.Password;
+  try {
+    //logic to check if user is the same user from the mondoDB collection if not they won't be verified
+    const verify = jwt.verify(token, secret);
+    res.render('index', { Email: verify.Email, Status: 'Not Verified' });
+  } catch (error) {
+    res.send('Not verified');
+  }
+
+  // updates a users name and password
+  app.post('/reset-password/:id/:token', async (req, res) => {
+    const { id, token } = req.params;
+    // const { password } = req.body;
+    let hashPassword = Users.hashPassword(req.body.Password);
+    console.log(req.params);
+
+    //searches through users to verify its the right user id in the token generated
+    const oldUser = await Users.findOne({ _id: id });
+    if (!oldUser) {
+      return res.json({ status: 'This user does not exist' });
+    }
+    const secret = JWT_SECRET + oldUser.Password;
+    try {
+      //logic to check if user is the same user from the mondoDB collection if not they won't be verified
+      const verify = jwt.verify(token, secret);
+
+      //updates users password and hashes it.
+      await Users.updateOne(
+        {
+          _id: id
+        },
+        {
+          $set: {
+            Password: hashPassword
+          }
+        }
+      );
+      // res.json({ status: 'Password Updated' });
+      res.render('index', { Email: verify.Email, Status: 'Verified' });
+    } catch (error) {
+      res.json('Something went wrong');
+    }
+  });
 });
