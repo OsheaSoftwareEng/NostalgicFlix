@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Document</title>
+	<%- include('./css/styles'); %>
+</head>
+<body>
+	<div class="box">
+		<div class="form">
+			<h1>Reset Password</h1>
+			<form action="" method="post">
+				<div class="input class">
+					<input class="input-style" type="Password" name="Password" id="Password"
+						placeholder="Enter new password" /><br />
+					<input class="input-button" type="submit" value="submit" />
+				</div>
+		</div>
+		</form>
+	</div>
+	<script>
+		var Status = '<%- JSON.stringify(Status) %>';
+		if (JSON.parse(Status) == 'Verified') {
+			window.location.href = 'http://localhost:8080'
+		}
+
+	</script>
+</body>
+</html>
