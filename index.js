@@ -362,7 +362,7 @@ app.post('/forgot-password', async (req, res) => {
     //variable to find user by email that forgot password
     const oldUser = await Users.findOne({ Email });
     if (!oldUser) {
-      return res.json({ status: 'User eot exists!' });
+      return res.status(400);
     }
     //created secret token that users get by email that expires in 5m
     const secret = JWT_SECRET + oldUser.Password;
