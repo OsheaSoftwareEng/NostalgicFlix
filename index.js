@@ -24,16 +24,16 @@ const Movies = Models.Movie;
 const Users = Models.User;
 
 //local host
-mongoose.connect('mongodb://localhost:27017/nfDB', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
-
-//external port
-// mongoose.connect(process.env.CONNECTION_URI, {
+// mongoose.connect('mongodb://localhost:27017/nfDB', {
 //   useNewUrlParser: true,
 //   useUnifiedTopology: true
 // });
+
+//external port
+mongoose.connect(process.env.CONNECTION_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 
 const cors = require('cors');
 
