@@ -24,16 +24,16 @@ const Movies = Models.Movie;
 const Users = Models.User;
 
 //local host
-// mongoose.connect('mongodb://localhost:27017/nfDB', {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true
-// });
-
-//external port
-mongoose.connect(process.env.CONNECTION_URI, {
+mongoose.connect('mongodb://localhost:27017/nfDB', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
+
+//external port
+// mongoose.connect(process.env.CONNECTION_URI, {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true
+// });
 
 const cors = require('cors');
 
@@ -362,7 +362,7 @@ app.post('/forgot-password', async (req, res) => {
     //variable to find user by email that forgot password
     const oldUser = await Users.findOne({ Email });
     if (!oldUser) {
-      return res.status(404);
+      return res.status(400).json({ status: 'User does not exist' });
     }
     //created secret token that users get by email that expires in 5m
     const secret = JWT_SECRET + oldUser.Password;
