@@ -24,16 +24,16 @@ const Movies = Models.Movie;
 const Users = Models.User;
 
 //local host
-// mongoose.connect('mongodb://localhost:27017/nfDB', {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true
-// });
-
-//external port
-mongoose.connect(process.env.CONNECTION_URI, {
+mongoose.connect('mongodb://localhost:27017/nfDB', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
+
+//external port
+// mongoose.connect(process.env.CONNECTION_URI, {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true
+// });
 
 const cors = require('cors');
 
@@ -180,7 +180,7 @@ app.post(
   '/users',
 
   [
-    check('Username', 'Username is required').isLength({ min: 5 }),
+    check('Username', 'Username is required').isLength({ min: 7 }),
     check(
       'Username',
       'Username contains non alphanumeric characters - not allowed.'
@@ -203,7 +203,7 @@ app.post(
           return res.status(400).send(req.body.Username + 'already exists');
         } else {
           Users.create({
-            Username: req.body.Username,
+            Username: req.body.Username.toLowerCase(),
             Password: hashPassword,
             Email: req.body.Email,
             Birthday: req.body.Birthday

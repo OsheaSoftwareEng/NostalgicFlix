@@ -1240,3 +1240,4 @@
 127.0.0.1 - - [30/Jun/2023:12:46:56 +0000] "POST /forgot-password HTTP/1.1" 200 4 "-" "PostmanRuntime/7.32.2"
 127.0.0.1 - - [30/Jun/2023:12:47:04 +0000] "POST /forgot-password HTTP/1.1" 404 25 "-" "PostmanRuntime/7.32.2"
 127.0.0.1 - - [30/Jun/2023:13:06:14 +0000] "POST /forgot-password HTTP/1.1" 400 32 "-" "PostmanRuntime/7.32.2"
+127.0.0.1 - - [01/Jul/2023:01:09:16 +0000] "POST /users HTTP/1.1" 201 234 "-" "PostmanRuntime/7.32.2"
