@@ -371,8 +371,11 @@ app.post('/forgot-password', async (req, res) => {
       expiresIn: '5m'
     });
 
-    //link sends from server to users to reset password
+    //link sends from server to users to reset password. EXTERNAL LINK
     const link = `https://nostalgic-flix.herokuapp.com/reset-password/${oldUser._id}/${token}`;
+
+    //LOCAL LINK
+    // const link = `http://localhost:8080/reset-password/${oldUser._id}/${token}`;
 
     //email sending to reset password nodemailer
     var transporter = nodemailer.createTransport({
@@ -387,7 +390,37 @@ app.post('/forgot-password', async (req, res) => {
       from: 'nostalgiaflixnoreply@gmail.com',
       to: req.body.Email,
       subject: 'Password Reset NostalgicFlix',
-      text: link
+      html: `<!DOCTYPE html>
+        <html lang="en" >
+        <head>
+          <meta charset="UTF-8">
+          <title> NostalgiaFlix Email Template</title>
+
+        </head>
+        <body>
+        <!-- partial:index.partial.html -->
+        <div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+          <div style="margin:50px auto;width:70%;padding:20px 0">
+            <div style="border-bottom:1px solid #eee">
+              <a href="" style="font-size:1.4em;color: #ff4500;text-decoration:none;font-weight:600">NostalgicFlix</a>
+         <p style="font-size:0.7em; color: #FFFFFF;">Password Recovery Service</p>
+            </div>
+
+            <p style="font-size:1.1em">Hi, ${oldUser.Username}</p>
+            <p>Your NostalgicFlix password can be reset by clicking the link below. If you did not request a new password, please ignore this email.'</p>
+            ${link}
+            <p style="font-size:0.9em;">Regards,<br />NostalgicFlix</p>
+            <hr style="border:none;border-top:1px solid #eee" />
+            <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
+              <p>NostalgicFlix Inc</p>
+
+            </div>
+          </div>
+        </div>
+        <!-- partial -->
+
+        </body>
+        </html>`
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
