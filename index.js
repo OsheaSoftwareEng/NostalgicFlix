@@ -197,26 +197,35 @@ app.post(
     }
 
     const hashPassword = Users.hashPassword(req.body.Password);
-    Users.findOne({ Username: req.body.Username })
+    Users.findOne({ Email: req.body.Email })
       .then((user) => {
         if (user) {
-          return res.status(400).send(req.body.Username + 'already exists');
-        } else {
-          Users.create({
-            Username: req.body.Username.toLowerCase(),
-            Password: hashPassword,
-            Email: req.body.Email,
-            Birthday: req.body.Birthday
-          })
-            .then((user) => {
-              res.status(201).json(user);
-            })
-            .catch((error) => {
-              console.error(error);
-              res.status(500).send('Error: ' + error);
-            });
+          return res.status(400).send(req.body.Email + 'already exist');
         }
+
+        Users.findOne({
+          Username: req.body.Username
+        }).then((user) => {
+          if (user) {
+            return res.status(400).send(req.body.Username + 'already exists');
+          } else {
+            Users.create({
+              Username: req.body.Username.toLowerCase(),
+              Password: hashPassword,
+              Email: req.body.Email,
+              Birthday: req.body.Birthday
+            })
+              .then((user) => {
+                res.status(201).json(user);
+              })
+              .catch((error) => {
+                console.error(error);
+                res.status(500).send('Error: ' + error);
+              });
+          }
+        });
       })
+
       .catch((error) => {
         console.error(error);
         res.status(500).send('Error: ' + error);
@@ -401,7 +410,7 @@ app.post('/forgot-password', async (req, res) => {
         <!-- partial:index.partial.html -->
         <div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
           <div style="margin:50px auto;width:70%;padding:20px 0">
-            <div style="border-bottom:1px solid #eee">
+            <div style="border-bottom:1px solid #FFFFFF">
               <a href="" style="font-size:1.4em;color: #ff4500;text-decoration:none;font-weight:600">NostalgicFlix</a>
          <p style="font-size:0.7em; color: #FFFFFF;">Password Recovery Service</p>
             </div>
@@ -410,7 +419,7 @@ app.post('/forgot-password', async (req, res) => {
             <p>Your NostalgicFlix password can be reset by clicking the link below. If you did not request a new password, please ignore this email.'</p>
             ${link}
             <p style="font-size:0.9em;">Regards,<br />NostalgicFlix</p>
-            <hr style="border:none;border-top:1px solid #eee" />
+            <hr style="border:none;border-top:1px solid #FFFFFF" />
             <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
               <p>NostalgicFlix Inc</p>
 
