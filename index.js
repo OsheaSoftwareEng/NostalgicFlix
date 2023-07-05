@@ -200,6 +200,7 @@ app.post(
     Users.findOne({ Email: req.body.Email })
       .then((user) => {
         if (user) {
+          res.statusMessage = 'Email already has been taken';
           return res.status(400).send(req.body.Email + 'already exist');
         }
 
@@ -207,6 +208,7 @@ app.post(
           Username: req.body.Username
         }).then((user) => {
           if (user) {
+            res.statusMessage = 'Username already exist';
             return res.status(400).send(req.body.Username + 'already exists');
           } else {
             Users.create({
