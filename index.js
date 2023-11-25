@@ -42,7 +42,8 @@ const allowedOrigins = [
   'https://nostalgic-flix.herokuapp.com',
   'http://localhost:1234',
   'https://nostalgicflix-api.onrender.com/',
-  'https://nostalgicflix.com'
+  'https://nostalgicflix.com',
+  'http://localhost:4200'
 ];
 
 app.use(
