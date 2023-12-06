@@ -41,7 +41,6 @@ const allowedOrigins = [
   'http://localhost:8080',
   'https://nostalgic-flix.herokuapp.com',
   'http://localhost:1234',
-  'https://nostalgicflix-api.onrender.com/',
   'https://nostalgicflix.com',
   'http://localhost:4200',
   'https://osheasoftwareeng.github.io/Angular-NostalgicFlix/'
