@@ -44,7 +44,7 @@ const allowedOrigins = [
   'https://nostalgicflix-api.onrender.com/',
   'https://nostalgicflix.com',
   'http://localhost:4200',
-  'https://osheasoftwareeng.github.io/myFlix-Angullar-App/'
+  'https://osheasoftwareeng.github.io/Angular-NostalgicFlix/'
 ];
 
 app.use(
