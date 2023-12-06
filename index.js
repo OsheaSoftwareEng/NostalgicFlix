@@ -43,7 +43,9 @@ const allowedOrigins = [
   'http://localhost:1234',
   'https://nostalgicflix.com',
   'http://localhost:4200',
-  'https://osheasoftwareeng.github.io/Angular-NostalgicFlix/'
+  'https://osheasoftwareeng.github.io/Angular-NostalgicFlix/',
+  'https://osheasoftwareeng.github.io/Angular-NostalgicFlix/welcome',
+  'https://osheasoftwareeng.github.io'
 ];
 
 app.use(
