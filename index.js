@@ -43,7 +43,8 @@ const allowedOrigins = [
   'http://localhost:1234',
   'https://nostalgicflix-api.onrender.com/',
   'https://nostalgicflix.com',
-  'http://localhost:4200'
+  'http://localhost:4200',
+  'https://osheasoftwareeng.github.io/myFlix-Angullar-App/'
 ];
 
 app.use(
@@ -313,11 +314,11 @@ app.put(
   '/users/:userName',
   passport.authenticate('jwt', { session: false }),
   [
-    // Username should be required and should be minimum 5 characters long
+    // Username should be required and should be minimum 7 characters long
     check(
       'Username',
       'Username is required and has to be minimum five characters long'
-    ).isLength({ min: 5 }),
+    ).isLength({ min: 7 }),
     // Username should be only alphanumeric characters
     check(
       'Username',
