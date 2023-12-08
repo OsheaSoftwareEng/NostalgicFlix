@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>JSDoc: Source: index.js</title>
+
+  <script src="scripts/prettify/prettify.js"> </script>
+  <script src="scripts/prettify/lang-css.js"> </script>
+  <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+  <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+  <div id="main">
+
+    <h1 class="page-title">Source: index.js</h1>
+
+
+
+
+
+
+    <section>
+      <article>
+        <pre class="prettyprint source linenums"><code>const express = require('express');
+            const bodyParser = require('body-parser');
+            const morgan = require('morgan');
+            const fs = require('fs');
+            const path = require('path');
+            const { check, validationResult } = require('express-validator');
+            const app = express();
+            app.use(express.json());
+            const jwt = require('jsonwebtoken');
+            var nodemailer = require('nodemailer');
+            app.set('view engine', 'ejs');
+            app.use(express.urlencoded({ extended: false }));
+
+            //token for forget password
+            const JWT_SECRET =
+            'hvdvay6ert72839289()aiyg8t87qt72393293883uhefiuh78ttq3ifi78272jbkj?[]]pou89ywe';
+
+            app.use(bodyParser.json());
+            app.use(bodyParser.urlencoded({ extended: true }));
+
+            const mongoose = require('mongoose');
+            const Models = require('./models.js');
+
+            const Movies = Models.Movie;
+            const Users = Models.User;
+
+            //** local host connect to backend */
+            // mongoose.connect('mongodb://localhost:27017/nfDB', {
+            // useNewUrlParser: true,
+            // useUnifiedTopology: true
+            // });
+
+            //** external port connect to backend */
+            mongoose.connect(process.env.CONNECTION_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+            });
+
+            const cors = require('cors');
+
+            //** current allowed orgins to connect with backend and use database */
+            const allowedOrigins = [
+            'http://localhost:8080',
+            'https://nostalgic-flix.herokuapp.com',
+            'http://localhost:1234',
+            'https://nostalgicflix.com',
+            'http://localhost:4200',
+            'https://osheasoftwareeng.github.io/Angular-NostalgicFlix/',
+            'https://osheasoftwareeng.github.io/Angular-NostalgicFlix/welcome',
+            'https://osheasoftwareeng.github.io'
+            ];
+
+            app.use(
+            cors({
+            origin: (origin, callback) => {
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.indexOf(origin) === -1) {
+            let message =
+            "The CORS policy for this application doesn't allow access from origin " +
+            origin;
+            return callback(new Error(message), false);
+            }
+            return callback(null, true);
+            }
+            })
+            );
+
+            let auth = require('./auth.js')(app);
+            const passport = require('passport');
+            const { measureMemory } = require('vm');
+            const { has } = require('lodash');
+            const { hash } = require('bcrypt');
+            require('./passport.js');
+
+            //combining morgan with the accessLogScream to log users who visit the website.
+            const accessLogStream = fs.createWriteStream(path.join(__dirname, 'log.txt'), {
+            flags: 'a'
+            });
+            app.use(morgan('combined', { stream: accessLogStream }));
+
+            //automatically sends all files that are requested from within the public folder.
+            app.use(express.static('public'));
+
+
+            // Welcome message
+            /**
+            * GET welcome message from '/' endpoint
+            * @method GET Request
+            * @param {string} endpoint to fetch welcome page
+            * @returns {string} Welcome message
+            */
+            app.get('/', (request, response) => {
+            response.send('Welcome to Nostalgicflix!');
+            });
+
+
+            //returns a JSON object of all current users
+            /**
+            * GET list of all current users from '/users' endpoint
+            * @method GET Request
+            * @param {string} endpoint to fetch current users in the database
+            * @returns {string} Json object of all current users in the database
+            */
+            app.get(
+            '/users',
+            passport.authenticate('jwt', { session: false }),
+            (req, res) => {
+            Users.find()
+            .then((users) => {
+            res.status(201).json(users);
+            })
+            .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+            });
+            }
+            );
+
+
+            //get a user by username
+            /**
+            * GET one users username from '/users/:userName' endpoint
+            * @method GET Request
+            * @param {string} endpoint to fetch one current user in the database
+            * @returns {string} Json object of all one user in the database
+            */
+            app.get(
+            '/users/:userName',
+            passport.authenticate('jwt', { session: false }),
+            (req, res) => {
+            Users.findOne({ Username: req.params.userName })
+            .then((user) => {
+            res.status(200).json(user);
+            })
+            .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+            });
+            }
+            );
+
+            //gets a JSON object of all the current movies on the server
+            /**
+            * GET all movies from '/movies' endpoint
+            * @method GET Request
+            * @param {string} endpoint to fetch all movies in the database
+            * @returns {string} Json object of all movies in the database
+            */
+            app.get(
+            '/movies',
+            passport.authenticate('jwt', { session: false }),
+            (req, res) => {
+            Movies.find()
+            .then((movies) => {
+            res.status(200).json(movies);
+            })
+            .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+            });
+            }
+            );
+
+            //searches for movies by their title and returns a single JSON object
+            /**
+            * GET one movie from '/movies/:title' endpoint
+            * @method GET Request
+            * @param {string} endpoint to fetch one movie in the database
+            * @returns {string} Json object of all one movie in the database
+            */
+            app.get(
+            '/movies/:title',
+            passport.authenticate('jwt', { session: false }),
+            (req, res) => {
+            Movies.findOne({ Title: req.params.title })
+            .then((movies) => {
+            res.status(200).json(movies);
+            })
+            .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+            });
+            }
+            );
+
+            //searches for movies by their genre and returns a JSON object
+            /**
+            * GET a list of movies from a specific genre from the '/movies/genre/:genreName' endpoint
+            * @method GET Request
+            * @param {string} endpoint to fetch movies from a specific genre in the database
+            * @returns {string} Json object of all movies from that genre in the database
+            */
+            app.get(
+            '/movies/genres/:genreName',
+            passport.authenticate('jwt', { session: false }),
+            (req, res) => {
+            Movies.find({ 'Genre.Name': req.params.genreName })
+            .then((movies) => {
+            res.status(200).json(movies);
+            })
+            .catch((err) => {
+            res.status(500).send('Error: ' + err);
+            });
+            }
+            );
+
+            //searches for movies by the directors name and returns the movies with that directors name
+            /**
+            * GET a specific director from the '/movies/directors/:directorName' endpoint
+            * @method GET Request
+            * @param {string} endpoint to fetch a director by name in the database
+            * @returns {string} Json object of one director in the database
+            */
+            app.get(
+            '/movies/directors/:directorsName',
+            passport.authenticate('jwt', { session: false }),
+            (req, res) => {
+            Movies.find({ 'Director.Name': req.params.directorsName })
+            .then((movies) => {
+            res.status(200).json(movies);
+            })
+            .catch((err) => {
+            res.status(500).send('Error: ' + err);
+            });
+            }
+            );
+
+            /**
+            * Creates an account for a new user from endpoint '/users' endpoint
+            * @method POST Request
+            * @param {function} callback to check if user already exists
+            * @param {string} Username username
+            * @param {string} Password password
+            * @param {string} Email email
+            * @returns {string} Json object of one user in the database
+            */
+            app.post(
+            '/users',
+
+            [
+            check('Username', 'Username is required').isLength({ min: 7 }),
+            check(
+            'Username',
+            'Username contains non alphanumeric characters - not allowed.'
+            ).isAlphanumeric(),
+            check('Password', 'Password is required').not().isEmpty(),
+            check('Email', 'Email does not appear to be valid').isEmail()
+            ],
+
+            (req, res) => {
+            // check the validation object for errors
+            let errors = validationResult(req);
+            if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
+            }
+
+            const hashPassword = Users.hashPassword(req.body.Password);
+            Users.findOne({ Email: req.body.Email })
+            .then((user) => {
+            if (user) {
+            res.statusMessage = 'Email already has been taken';
+            return res.status(400).send(req.body.Email + 'already exist');
+            }
+
+            Users.findOne({
+            Username: req.body.Username
+            }).then((user) => {
+            if (user) {
+            res.statusMessage = 'Username already exist';
+            return res.status(400).send(req.body.Username + 'already exists');
+            } else {
+            Users.create({
+            Username: req.body.Username.toLowerCase(),
+            Password: hashPassword,
+            Email: req.body.Email,
+            Birthday: req.body.Birthday
+            })
+            .then((user) => {
+            res.status(201).json(user);
+            })
+            .catch((error) => {
+            console.error(error);
+            res.status(500).send('Error: ' + error);
+            });
+            }
+            });
+            })
+
+            .catch((error) => {
+            console.error(error);
+            res.status(500).send('Error: ' + error);
+            });
+            }
+            );
+
+            /**
+            * @method POST Request
+            * @param {string} endpoint to add movie to favorites '/users/:userName/movies/:MovieID'
+            * @param {function} authentication method using passport
+            * @param {function} callback to find user and update their favorite movies array
+            * @returns {object} updated user object
+            */
+            //allows users to save movies to their favorites!
+            app.post(
+            '/users/:userName/movies/:MovieID',
+            passport.authenticate('jwt', { session: false }),
+            (req, res) => {
+            Users.findOneAndUpdate(
+            { Username: req.params.userName },
+            {
+            $addToSet: { FavoriteMovies: req.params.MovieID }
+            },
+            { new: true } //This line makes sure the updated document is returned
+            )
+            .then((updatedUser) => {
+            if (!updatedUser) {
+            return res.status(404).send("Error: User doesn't exist");
+            } else {
+            res.json(updatedUser);
+            }
+            })
+            .catch((error) => {
+            console.error(error);
+            res.status(500).send('Error: ' + error);
+            });
+            }
+            );
+
+            //deletes a user by username
+            /**
+            * @method DELETE Request
+            * @param {string} endpoint to user profile '/users/:userName'
+            * @param {function} authentication method using passport
+            * @param {function} callback to find user and remove the object
+            * @returns {string} message that confirms the deletion
+            */
+            app.delete(
+            '/users/:userName',
+            passport.authenticate('jwt', { session: false }),
+            (req, res) => {
+            Users.findOneAndRemove({ Username: req.params.userName })
+            .then((user) => {
+            if (!user) {
+            res.status(400).send(req.params.userName + ' was not found');
+            } else {
+            res.status(200).send(req.params.userName + ' was deleted');
+            }
+            })
+            .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+            });
+            }
+            );
+
+            //allows users to delete movies from their favorites
+            /**
+            * @method DELETE Request
+            * @param {string} endpoint to delete movie to list of favorites '/users/:userName/movies/:MovieID'
+            * @param {function} authentication method using passport
+            * @param {function} callback to find user and update their favorite movies array
+            * @returns {object} updated user object
+            */
+            app.delete(
+            '/users/:userName/movies/:MovieID',
+            passport.authenticate('jwt', { session: false }),
+            (req, res) => {
+            Users.findOneAndUpdate(
+            { Username: req.params.userName },
+            {
+            $pull: { FavoriteMovies: req.params.MovieID }
+            },
+            { new: true }
+            )
+            .then((updatedUser) => {
+            if (!updatedUser) {
+            return res.status(404).send("Error: User doesn't exist");
+            } else {
+            res.json(updatedUser);
+            }
+            })
+            .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+            });
+            }
+            );
+
+            //updates a account holders information
+            /**
+            * @method PUT Request
+            * @param {string} endpoint to update user info '/users/:userName'
+            * @param {function} authentication method using passport
+            * @param {array} validation using express validator
+            * @param {function} callback to to find user and update their profile data
+            * @returns {object} updated user object
+            */
+            app.put(
+            '/users/:userName',
+            passport.authenticate('jwt', { session: false }),
+            [
+            // Username should be required and should be minimum 7 characters long
+            check(
+            'Username',
+            'Username is required and has to be minimum five characters long'
+            ).isLength({ min: 7 }),
+            // Username should be only alphanumeric characters
+            check(
+            'Username',
+            'Username contains non alphanumeric characters - not allowed.'
+            ).isAlphanumeric(),
+            // Password is required
+            check('Password', 'Password is required').not().isEmpty(),
+            // Email is required and should be valid
+            check('Email', 'Email does not appear to be valid').isEmail()
+            ],
+            (req, res) => {
+            let hashPassword = Users.hashPassword(req.body.Password);
+
+            Users.findOneAndUpdate(
+            { Username: req.params.userName },
+            {
+            $set: {
+            Username: req.body.Username,
+            Password: hashPassword,
+            Email: req.body.Email,
+            Birthday: req.body.Birthday
+            }
+            },
+            { new: true }
+            )
+            .then((updatedUser) => {
+            if (!updatedUser) {
+            return res.status(404).send("Error: User doesn't exist");
+            } else {
+            res.json(updatedUser);
+            }
+            })
+            .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+            });
+            }
+            );
+
+            //this is a error code to detect errors in the code above.
+            app.use((err, req, res, next) => {
+            console.error(err.stack);
+            res.status(500).send('Something broke!');
+            });
+
+            //if everything functions correctly this message is logged from port 8080 thats listening.
+            const port = process.env.PORT || 8080;
+            app.listen(port, '0.0.0.0', () => {
+            console.log('Listening on Port.');
+            });
+
+            /**
+            * @method POST Request
+            * @param {string} endpoint to reset users password '/forgot-password'
+            * @returns user {object} with a new password hashed in the database
+            */
+            app.post('/forgot-password', async (req, res) => {
+            const { Email } = req.body;
+            try {
+            //variable to find user by email that forgot password
+            const oldUser = await Users.findOne({ Email });
+            if (!oldUser) {
+            return res.status(400).send('User does not exist');
+            }
+            //created secret token that users get by email that expires in 5m
+            const secret = JWT_SECRET + oldUser.Password;
+            const token = jwt.sign({ Email: oldUser.Email, id: oldUser._id }, secret, {
+            expiresIn: '5m'
+            });
+
+            //link sends from server to users to reset password. EXTERNAL LINK
+            const link = `https://nostalgic-flix.herokuapp.com/reset-password/${oldUser._id}/${token}`;
+
+            //LOCAL LINK
+            // const link = `http://localhost:8080/reset-password/${oldUser._id}/${token}`;
+
+            //email sending to reset password nodemailer
+            var transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+            user: 'nostalgiaflixnoreply@gmail.com',
+            pass: 'movrbebnrqeqnsax'
+            }
+            });
+
+            var mailOptions = {
+            from: 'nostalgiaflixnoreply@gmail.com',
+            to: req.body.Email,
+            subject: 'Password Reset NostalgicFlix',
+            html: `&lt;!DOCTYPE html>
+            &lt;html lang="en" >
+            &lt;head>
+            &lt;meta charset="UTF-8">
+            &lt;title> NostalgiaFlix Email Template&lt;/title>
+
+            &lt;/head>
+            &lt;body>
+            &lt;!-- partial:index.partial.html -->
+            &lt;div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+            &lt;div style="margin:50px auto;width:70%;padding:20px 0">
+            &lt;div style="border-bottom:1px solid #eee">
+            &lt;a href="" style="font-size:1.4em;color:
+            #ff4500;text-decoration:none;font-weight:600">NostalgicFlix&lt;/a>
+            &lt;p style="font-size:0.7em; color: #FFFFFF;">Password Recovery Service&lt;/p>
+            &lt;/div>
+
+            &lt;p style="font-size:1.1em">Hi, ${oldUser.Username}&lt;/p>
+            &lt;p>Your NostalgicFlix password can be reset by clicking the link below. If you did not request a new
+            password, please ignore this email.'&lt;/p>
+            ${link}
+            &lt;p style="font-size:0.9em;">Regards,&lt;br />NostalgicFlix&lt;/p>
+            &lt;hr style="border:none;border-top:1px solid #eee" />
+            &lt;div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
+            &lt;p>NostalgicFlix Inc&lt;/p>
+
+            &lt;/div>
+            &lt;/div>
+            &lt;/div>
+            &lt;!-- partial -->
+
+            &lt;/body>
+            &lt;/html>`
+            };
+
+            transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+            console.log(error);
+            } else {
+            console.log('Email sent: ' + info.response);
+            }
+            });
+            //reset password link sent to console
+            console.log(link);
+            res.send('done');
+            } catch (error) {}
+            });
+
+            //once users clicks link, the link will contain id and token.
+            app.get('/reset-password/:id/:token', async (req, res) => {
+            const { id, token } = req.params;
+            console.log(req.params);
+
+            //searches through users to verify its the right user id in the token generated if not everything ends
+            const oldUser = await Users.findOne({ _id: id });
+            if (!oldUser) {
+            return res.json({ status: 'This user does not exist' });
+            }
+
+            //verifies if the secret is correct if it is then it renders the reset password page.
+            const secret = JWT_SECRET + oldUser.Password;
+            try {
+            //logic to check if user is the same user from the mondoDB collection if not they won't be verified
+            const verify = jwt.verify(token, secret);
+            res.render('index', { Email: verify.Email, Status: 'Not Verified' });
+            } catch (error) {
+            res.send('Not verified');
+            }
+
+            // updates a users name and password
+            app.post('/reset-password/:id/:token', async (req, res) => {
+            const { id, token } = req.params;
+            // const { password } = req.body;
+            let hashPassword = Users.hashPassword(req.body.Password);
+            console.log(req.params);
+
+            //searches through users to verify its the right user id in the token generated
+            const oldUser = await Users.findOne({ _id: id });
+            if (!oldUser) {
+            return res.json({ status: 'This user does not exist' });
+            }
+            const secret = JWT_SECRET + oldUser.Password;
+            try {
+            //logic to check if user is the same user from the mondoDB collection if not they won't be verified
+            const verify = jwt.verify(token, secret);
+
+            //updates users password and hashes it.
+            await Users.updateOne(
+            {
+            _id: id
+            },
+            {
+            $set: {
+            Password: hashPassword
+            }
+            }
+            );
+            // res.json({ status: 'Password Updated' });
+            res.render('index', { Email: verify.Email, Status: 'Verified' });
+            } catch (error) {
+            res.json('Something went wrong');
+            }
+            });
+            });
+          </code></pre>
+      </article>
+    </section>
+
+
+
+
+  </div>
+
+  <nav>
+    <h2><a href="index.html">Home</a></h2>
+    <h3>Global</h3>
+    <ul>
+      <li><a href="global.html#getMovies">getMovies</a></li>
+    </ul>
+  </nav>
+
+  <br class="clear">
+
+  <footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Fri Dec 08 2023 12:00:14
+    GMT-0500 (Eastern Standard Time)
+  </footer>
+
+  <script> prettyPrint(); </script>
+  <script src="scripts/linenumber.js"> </script>
+</body>
+</html>

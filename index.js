@@ -117,6 +117,11 @@ app.get(
 );
 
 //gets a JSON object of all the current movies on the server
+/**
+ * Gets all the movies
+ * @name getMovies
+ * @kind function
+ */
 app.get(
   '/movies',
   passport.authenticate('jwt', { session: false }),
