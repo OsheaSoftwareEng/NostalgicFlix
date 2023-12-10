@@ -2,7 +2,9 @@
 
 > This web application implements a RESTful API to perform CRUD operations on many different movies on the application. Users will be able to sign up, update their personal information, and add and remove movies from their favorites. Users will also be able to reset their passwords if forgotten.
 
-Frontend Live Demo: https://nostalgicflix.com
+**API Hosted:** https://nostalgic-flix.herokuapp.com/
+
+**Frontend Live Demo:** https://nostalgicflix.com
 
 ## Key Features
 
